@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIAMOND CUP • Dashboard</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0066ff, #6600ff);
+            --secondary-gradient: linear-gradient(135deg, #ff00cc, #3333ff);
+            --bg-dark: #0a0a0f;
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --text-primary: #fff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.3);
+            --accent-cyan: #00ffff;
+            --accent-magenta: #ff00ff;
+            --accent-gold: #ffd700;
+            --accent-discord: #5865F2;
+            --font-title: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --border-radius-lg: 32px;
+            --border-radius-md: 20px;
+            --border-radius-sm: 12px;
+            --border-radius-xl: 40px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body.rtl {
+            direction: rtl;
+            text-align: right;
+        }
+
+        body.rtl .player-info {
+            flex-direction: row-reverse;
+        }
+
+        body.rtl .member-row {
+            flex-direction: row-reverse;
+        }
+
+        /* Éléments géométriques de fond */
+        .geometric-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .geo-shape {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .geo-shape:nth-child(1) {
+            width: 600px;
+            height: 600px;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            top: -200px;
+            left: -200px;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.02), transparent);
+            border-color: rgba(0, 255, 255, 0.05);
+            animation: floatShape 20s ease-in-out infinite;
+        }
+
+        .geo-shape:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+            bottom: -100px;
+            right: -100px;
+            background: linear-gradient(135deg, rgba(255, 0, 255, 0.02), transparent);
+            border-color: rgba(255, 0, 255, 0.05);
+            animation: floatShape 15s ease-in-out infinite reverse;
+        }
+
+        .geo-shape:nth-child(3) {
+            width: 300px;
+            height: 300px;
+            border-radius: 41% 59% 34% 66% / 61% 35% 65% 39%;
+            top: 30%;
+            left: 70%;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.02), transparent);
+            border-color: rgba(255, 215, 0, 0.05);
+            animation: floatShape 18s ease-in-out infinite 2s;
+        }
+
+        @keyframes floatShape {
+            0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            33% { transform: translate(30px, -30px) rotate(120deg) scale(1.1); }
+            66% { transform: translate(-20px, 20px) rotate(240deg) scale(0.9); }
+        }
+
+        /* Sélecteur de langue */
+        .language-bar {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 6px;
+            border: 1px solid var(--glass-border);
+            z-index: 100;
+        }
+
+        .lang-option {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 50px;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.85rem;
+            font-family: var(--font-body);
+        }
+
+        .lang-option:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .lang-option.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 80px 20px 40px;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-family: var(--font-title);
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #a0a0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+
+        .header-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Bannière des places */
+        .spots-banner {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+            margin-bottom: 40px;
+            border: 1px solid;
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px currentColor; }
+            50% { box-shadow: 0 0 30px currentColor; }
+        }
+
+        .spots-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .spots-icon {
+            font-size: 2rem;
+        }
+
+        .spots-message {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .spots-highlight {
+            font-weight: 800;
+            font-size: 1.4rem;
+            margin-left: 5px;
+        }
+
+        /* Cards génériques */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: var(--border-radius-lg);
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid var(--glass-border);
+            transition: var(--transition);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 255, 255, 0.2);
+        }
+
+        .card-title {
+            font-family: var(--font-title);
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-title i {
+            font-size: 2rem;
+        }
+
+        .card-title.team i { color: var(--accent-cyan); }
+        .card-title.server i { color: var(--accent-discord); }
+        .card-title.rules i { color: var(--accent-magenta); }
+        .card-title.ranking i { color: var(--accent-gold); }
+
+        /* Équipe */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .clan-header {
+            grid-column: 1 / -1;
+            background: rgba(255, 215, 0, 0.03);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: var(--border-radius-md);
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .clan-name {
+            font-family: var(--font-title);
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .clan-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 15px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+        }
+
+        .player-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius-md);
+            padding: 25px;
+            border: 1px solid var(--glass-border);
+            transition: var(--transition);
+        }
+
+        .player-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-3px);
+        }
+
+        .player-card h3 {
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+        }
+
+        .player-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .player-info span:first-child {
+            color: var(--text-muted);
+        }
+
+        .player-info span:last-child {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Serveur Discord */
+        .server-content {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .server-info {
+            flex: 1;
+        }
+
+        .server-info h3 {
+            color: var(--accent-discord);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .server-info p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .server-features {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .server-features li {
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+        }
+
+        .server-features li i {
+            color: var(--accent-discord);
+            width: 20px;
+        }
+
+        .discord-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 35px;
+            background: var(--accent-discord);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .discord-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(88, 101, 242, 0.3);
+            border-color: white;
+        }
+
+        .server-icon {
+            width: 200px;
+            height: 200px;
+            background: rgba(88, 101, 242, 0.05);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            color: var(--accent-discord);
+            border: 2px dashed rgba(88, 101, 242, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Règles */
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .rule-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius-md);
+            padding: 25px;
+            border-left: 4px solid var(--accent-cyan);
+            border: 1px solid var(--glass-border);
+            transition: var(--transition);
+        }
+
+        .rule-card:hover {
+            border-color: var(--accent-magenta);
+            transform: translateY(-3px);
+        }
+
+        .rule-card h4 {
+            color: var(--accent-cyan);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        .rule-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin: 8px 0;
+        }
+
+        /* Classement */
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .ranking-table th {
+            background: rgba(0, 255, 255, 0.05);
+            padding: 15px;
+            text-align: left;
+            color: var(--accent-cyan);
+            font-weight: 600;
+            border-bottom: 2px solid rgba(0, 255, 255, 0.1);
+        }
+
+        .ranking-table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .ranking-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .clan-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .clan-name-td {
+            font-family: var(--font-title);
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        .members-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .member-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+        }
+
+        .member-name {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .member-stats {
+            margin-left: auto;
+            display: flex;
+            gap: 15px;
+        }
+
+        .member-kills {
+            color: var(--accent-magenta);
+            font-weight: 600;
+        }
+
+        .member-assists {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .totals-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-gold);
+            margin-top: 5px;
+        }
+
+        .totals-label {
+            color: var(--accent-gold);
+            font-size: 0.9rem;
+        }
+
+        .totals-value {
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .points-cell {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--accent-cyan);
+        }
+
+        .rank-1 .clan-name-td { color: #ffd700; text-shadow: 0 0 10px #ffd700; }
+        .rank-2 .clan-name-td { color: #c0c0c0; text-shadow: 0 0 10px #c0c0c0; }
+        .rank-3 .clan-name-td { color: #cd7f32; text-shadow: 0 0 10px #cd7f32; }
+
+        .team-badge {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 2px 10px;
+            background: var(--accent-cyan);
+            color: var(--bg-dark);
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Boutons sociaux */
+        .social-actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 30px;
+            border-radius: var(--border-radius-sm);
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .social-btn.discord {
+            background: var(--accent-discord);
+        }
+
+        .social-btn.tiktok {
+            background: #000;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.2);
+            border-color: white;
+        }
+
+        /* Lien retour */
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-link a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-link a:hover {
+            color: var(--accent-cyan);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 100px 15px 30px;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .clan-name {
+                font-size: 1.8rem;
+            }
+
+            .ranking-table {
+                font-size: 0.8rem;
+            }
+
+            .ranking-table th,
+            .ranking-table td {
+                padding: 10px 5px;
+            }
+
+            .member-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .member-stats {
+                margin-left: 0;
+            }
+
+            .server-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .server-features li {
+                justify-content: center;
+            }
+
+            .language-bar {
+                top: 10px;
+                right: 10px;
+                flex-wrap: wrap;
+                max-width: 180px;
+            }
+
+            .lang-option {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="geometric-bg">
+        <div class="geo-shape"></div>
+        <div class="geo-shape"></div>
+        <div class="geo-shape"></div>
+    </div>
+
+    <div class="language-bar">
+        <button class="lang-option" onclick="changeLanguage('fr')">FR🇫🇷</button>
+        <button class="lang-option" onclick="changeLanguage('en')">EN🇺🇸</button>
+        <button class="lang-option" onclick="changeLanguage('es')">ES🇪🇸</button>
+        <button class="lang-option" onclick="changeLanguage('ar')">AR🇸🇦</button>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>DIAMOND CUP</h1>
+            <div class="header-subtitle" id="dashboardSubtitle">PLAYER DASHBOARD</div>
+        </div>
+
+        <!-- Bannière places -->
+        <div id="spotsBannerContainer"></div>
+
+        <!-- Équipe -->
+        <div class="glass-card">
+            <div class="card-title team">
+                <i class="fas fa-users"></i>
+                <span id="teamTitle">MY TEAM</span>
+            </div>
+            <div id="teamDisplay" class="team-grid"></div>
+        </div>
+
+        <!-- Serveur Discord -->
+        <div class="glass-card">
+            <div class="card-title server">
+                <i class="fab fa-discord"></i>
+                <span id="serverTitle">TOURNAMENT SERVER</span>
+            </div>
+            <div class="server-content">
+                <div class="server-info">
+                    <h3 id="serverWelcome">Join the community!</h3>
+                    <p id="serverDesc">All important information, announcements and discussions happen on our Discord server.</p>
+                    
+                    <ul class="server-features">
+                        <li><i class="fas fa-bullhorn"></i> <span id="feature1">Official tournament announcements</span></li>
+                        <li><i class="fas fa-calendar-alt"></i> <span id="feature2">Match dates and times</span></li>
+                        <li><i class="fas fa-trophy"></i> <span id="feature3">Live results and rankings</span></li>
+                        <li><i class="fas fa-comments"></i> <span id="feature4">Chat with other teams</span></li>
+                    </ul>
+                    
+                    <a href="https://discord.gg/QfKPpnFK" target="_blank" class="discord-btn">
+                        <i class="fab fa-discord"></i> <span id="serverBtn">JOIN SERVER</span>
+                    </a>
+                </div>
+                <div class="server-icon">
+                    <i class="fab fa-discord"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Règles -->
+        <div class="glass-card">
+            <div class="card-title rules">
+                <i class="fas fa-scroll"></i>
+                <span id="rulesTitle">OFFICIAL RULES</span>
+            </div>
+            <div class="rules-grid">
+                <div class="rule-card">
+                    <h4><i class="fas fa-ban"></i> <span id="rule1Title">🚫 Bans</span></h4>
+                    <p id="rule1Line1">• No emulators (Mobile only)</p>
+                    <p id="rule1Line2">• No teaming</p>
+                    <p id="rule1Line3">• No unauthorized mods</p>
+                </div>
+                <div class="rule-card">
+                    <h4><i class="fas fa-clock"></i> <span id="rule2Title">⏰ Schedule</span></h4>
+                    <p id="rule2Line1">• Be there 30min before</p>
+                    <p id="rule2Line2">• Registration: 4:30PM-7:00PM</p>
+                    <p id="rule2Line3">• Matches at 6:30PM</p>
+                </div>
+                <div class="rule-card">
+                    <h4><i class="fas fa-trophy"></i> <span id="rule3Title">🏆 Format</span></h4>
+                    <p id="rule3Line1">• 3 qualifiers rounds</p>
+                    <p id="rule3Line2">• Top 8 semi-finals (BO3)</p>
+                    <p id="rule3Line3">• Finals BO3</p>
+                </div>
+                <div class="rule-card">
+                    <h4><i class="fas fa-gavel"></i> <span id="rule4Title">⚖️ Penalties</span></h4>
+                    <p id="rule4Line1">• 1st: warning</p>
+                    <p id="rule4Line2">• 2nd: disqualification</p>
+                    <p id="rule4Line3">• 3rd: ban</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Classement -->
+        <div class="glass-card">
+            <div class="card-title ranking">
+                <i class="fas fa-trophy"></i>
+                <span id="rankingTitle">CLAN RANKING</span>
+            </div>
+            <table class="ranking-table">
+                <thead>
+                    <tr>
+                        <th id="rankHeader">#</th>
+                        <th id="clanHeader">Clan & Members</th>
+                        <th id="killsHeader">Kills</th>
+                        <th id="assistsHeader">Assists</th>
+                        <th id="totalKillsHeader">Total Kills</th>
+                        <th id="totalAssistsHeader">Total Assists</th>
+                        <th id="pointsHeader">Points</th>
+                    </tr>
+                </thead>
+                <tbody id="rankingBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Boutons sociaux -->
+        <div class="social-actions">
+            <a href="https://discord.com/users/1448477963891773621" target="_blank" class="social-btn discord">
+                <i class="fab fa-discord"></i> <span id="discordBtn">Discord</span>
+            </a>
+            <a href="https://www.tiktok.com/@wellicho_23" target="_blank" class="social-btn tiktok">
+                <i class="fab fa-tiktok"></i> <span id="tiktokBtn">TikTok</span>
+            </a>
+        </div>
+
+        <!-- Retour -->
+        <div class="back-link">
+            <a href="index.html">
+                <i class="fas fa-arrow-left"></i> <span id="backHome">Back to home</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // ===== VÉRIFICATION CONNEXION =====
+        const currentUser = localStorage.getItem('currentUser');
+        if (!currentUser) {
+            window.location.href = 'login.html';
+        }
+
+        // ===== BANNIÈRE PLACES =====
+        function showRemainingSpots() {
+            const saved = localStorage.getItem('squadsLeft');
+            const remaining = saved !== null ? parseInt(saved) : 20;
+            
+            const container = document.getElementById('spotsBannerContainer');
+            container.innerHTML = '';
+            
+            let borderColor, bgColor, textColor, icon;
+            
+            if (remaining === 0) {
+                borderColor = '#ff00ff';
+                bgColor = 'rgba(255, 0, 255, 0.05)';
+                textColor = '#ff00ff';
+                icon = 'fa-times-circle';
+            } else if (remaining <= 5) {
+                borderColor = '#ff00ff';
+                bgColor = 'rgba(255, 0, 255, 0.05)';
+                textColor = '#ff00ff';
+                icon = 'fa-exclamation-triangle';
+            } else if (remaining <= 10) {
+                borderColor = '#ffaa00';
+                bgColor = 'rgba(255, 170, 0, 0.05)';
+                textColor = '#ffaa00';
+                icon = 'fa-bolt';
+            } else {
+                borderColor = '#00ffff';
+                bgColor = 'rgba(0, 255, 255, 0.05)';
+                textColor = '#00ffff';
+                icon = 'fa-check-circle';
+            }
+            
+            let message = '';
+            let highlight = '';
+            
+            if (remaining === 0) {
+                message = 'TOURNAMENT FULL';
+                highlight = '';
+            } else if (remaining <= 5) {
+                message = 'URGENT! Only ';
+                highlight = `${remaining} spot${remaining > 1 ? 's' : ''} left`;
+            } else if (remaining <= 10) {
+                message = 'Hurry up! ';
+                highlight = `${remaining} spots left`;
+            } else {
+                message = '';
+                highlight = `${remaining} spots available`;
+            }
+            
+            const banner = document.createElement('div');
+            banner.className = 'spots-banner';
+            banner.style.borderColor = borderColor;
+            banner.style.backgroundColor = bgColor;
+            banner.style.boxShadow = `0 0 20px ${borderColor}`;
+            
+            banner.innerHTML = `
+                <div class="spots-content">
+                    <i class="fas ${icon}" style="font-size: 2rem; color: ${textColor};"></i>
+                    <span class="spots-message" style="color: ${textColor};">
+                        ${message} <span class="spots-highlight">${highlight}</span>
+                    </span>
+                </div>
+            `;
+            
+            container.appendChild(banner);
+        }
+
+        // ===== TRADUCTIONS =====
+        const translations = {
+            fr: {
+                dashboardSubtitle: "PLAYER DASHBOARD",
+                teamTitle: "MON ÉQUIPE",
+                serverTitle: "SERVEUR DU TOURNOI",
+                serverWelcome: "Rejoins la communauté !",
+                serverDesc: "Toutes les informations importantes, les annonces et les discussions se passent sur notre serveur Discord.",
+                feature1: "Annonces officielles du tournoi",
+                feature2: "Dates et horaires des matchs",
+                feature3: "Résultats et classements en direct",
+                feature4: "Discute avec les autres équipes",
+                serverBtn: "REJOINDRE LE SERVEUR",
+                rulesTitle: "RÈGLES OFFICIELLES",
+                rule1Title: "🚫 Interdictions",
+                rule1Line1: "• Pas d'émulateurs (Mobile uniquement)",
+                rule1Line2: "• Pas de teaming",
+                rule1Line3: "• Pas de mods non autorisés",
+                rule2Title: "⏰ Horaires",
+                rule2Line1: "• Présence 30min avant",
+                rule2Line2: "• Inscriptions: 16h30-19h00",
+                rule2Line3: "• Matchs à 18h30",
+                rule3Title: "🏆 Format",
+                rule3Line1: "• 3 manches qualifs",
+                rule3Line2: "• Top 8 en demi-finales (BO3)",
+                rule3Line3: "• Finale BO3",
+                rule4Title: "⚖️ Sanctions",
+                rule4Line1: "• 1ère : avertissement",
+                rule4Line2: "• 2ème : disqualification",
+                rule4Line3: "• 3ème : bannissement",
+                rankingTitle: "CLASSEMENT DES CLANS",
+                rankHeader: "#",
+                clanHeader: "Clan & Membres",
+                killsHeader: "Kills",
+                assistsHeader: "Assists",
+                totalKillsHeader: "Kills Totaux",
+                totalAssistsHeader: "Assists Totaux",
+                pointsHeader: "Points",
+                discordBtn: "Discord",
+                tiktokBtn: "TikTok",
+                backHome: "Retour à l'accueil",
+                you: "VOUS",
+                clan: "CLAN",
+                captain: "CAPITAINE",
+                member2: "MEMBRE 2",
+                member3: "MEMBRE 3",
+                pseudo: "Pseudo",
+                id: "ID",
+                discord: "Discord"
+            },
+            en: {
+                dashboardSubtitle: "PLAYER DASHBOARD",
+                teamTitle: "MY TEAM",
+                serverTitle: "TOURNAMENT SERVER",
+                serverWelcome: "Join the community!",
+                serverDesc: "All important information, announcements and discussions happen on our Discord server.",
+                feature1: "Official tournament announcements",
+                feature2: "Match dates and times",
+                feature3: "Live results and rankings",
+                feature4: "Chat with other teams",
+                serverBtn: "JOIN SERVER",
+                rulesTitle: "OFFICIAL RULES",
+                rule1Title: "🚫 Bans",
+                rule1Line1: "• No emulators (Mobile only)",
+                rule1Line2: "• No teaming",
+                rule1Line3: "• No unauthorized mods",
+                rule2Title: "⏰ Schedule",
+                rule2Line1: "• Be there 30min before",
+                rule2Line2: "• Registration: 4:30PM-7:00PM",
+                rule2Line3: "• Matches at 6:30PM",
+                rule3Title: "🏆 Format",
+                rule3Line1: "• 3 qualifiers rounds",
+                rule3Line2: "• Top 8 semi-finals (BO3)",
+                rule3Line3: "• Finals BO3",
+                rule4Title: "⚖️ Penalties",
+                rule4Line1: "• 1st: warning",
+                rule4Line2: "• 2nd: disqualification",
+                rule4Line3: "• 3rd: ban",
+                rankingTitle: "CLAN RANKING",
+                rankHeader: "#",
+                clanHeader: "Clan & Members",
+                killsHeader: "Kills",
+                assistsHeader: "Assists",
+                totalKillsHeader: "Total Kills",
+                totalAssistsHeader: "Total Assists",
+                pointsHeader: "Points",
+                discordBtn: "Discord",
+                tiktokBtn: "TikTok",
+                backHome: "Back to home",
+                you: "YOU",
+                clan: "CLAN",
+                captain: "CAPTAIN",
+                member2: "MEMBER 2",
+                member3: "MEMBER 3",
+                pseudo: "Pseudo",
+                id: "ID",
+                discord: "Discord"
+            },
+            es: {
+                dashboardSubtitle: "PANEL DE JUGADOR",
+                teamTitle: "MI EQUIPO",
+                serverTitle: "SERVIDOR DEL TORNEO",
+                serverWelcome: "¡Únete a la comunidad!",
+                serverDesc: "Toda la información importante, anuncios y discusiones tienen lugar en nuestro servidor de Discord.",
+                feature1: "Anuncios oficiales del torneo",
+                feature2: "Fechas y horarios de partidos",
+                feature3: "Resultados y clasificaciones en vivo",
+                feature4: "Chatea con otros equipos",
+                serverBtn: "UNIRSE AL SERVIDOR",
+                rulesTitle: "REGLAS OFICIALES",
+                rule1Title: "🚫 Prohibiciones",
+                rule1Line1: "• Sin emuladores (Solo móvil)",
+                rule1Line2: "• Sin teaming",
+                rule1Line3: "• Sin mods no autorizados",
+                rule2Title: "⏰ Horarios",
+                rule2Line1: "• Presencia 30min antes",
+                rule2Line2: "• Inscripción: 16:30-19:00",
+                rule2Line3: "• Partidos a las 18:30",
+                rule3Title: "🏆 Formato",
+                rule3Line1: "• 3 rondas clasificatorias",
+                rule3Line2: "• Top 8 semifinales (BO3)",
+                rule3Line3: "• Final BO3",
+                rule4Title: "⚖️ Sanciones",
+                rule4Line1: "• 1ª: advertencia",
+                rule4Line2: "• 2ª: descalificación",
+                rule4Line3: "• 3ª: expulsión",
+                rankingTitle: "CLASIFICACIÓN DE CLANES",
+                rankHeader: "#",
+                clanHeader: "Clan & Miembros",
+                killsHeader: "Muertes",
+                assistsHeader: "Asistencias",
+                totalKillsHeader: "Muertes Totales",
+                totalAssistsHeader: "Asistencias Totales",
+                pointsHeader: "Puntos",
+                discordBtn: "Discord",
+                tiktokBtn: "TikTok",
+                backHome: "Volver al inicio",
+                you: "TÚ",
+                clan: "CLAN",
+                captain: "CAPITÁN",
+                member2: "MIEMBRO 2",
+                member3: "MIEMBRO 3",
+                pseudo: "Pseudo",
+                id: "ID",
+                discord: "Discord"
+            },
+            ar: {
+                dashboardSubtitle: "لوحة تحكم اللاعب",
+                teamTitle: "فريقي",
+                serverTitle: "خادم البطولة",
+                serverWelcome: "انضم إلى المجتمع!",
+                serverDesc: "جميع المعلومات المهمة والإعلانات والمناقشات تتم على خادم Discord الخاص بنا.",
+                feature1: "إعلانات البطولة الرسمية",
+                feature2: "مواعيد المباريات",
+                feature3: "النتائج والترتيب المباشر",
+                feature4: "دردش مع الفرق الأخرى",
+                serverBtn: "انضم إلى الخادم",
+                rulesTitle: "القواعد الرسمية",
+                rule1Title: "🚫 المحظورات",
+                rule1Line1: "• لا منصات (جوال فقط)",
+                rule1Line2: "• لا تحالف",
+                rule1Line3: "• لا تعديلات غير مصرح بها",
+                rule2Title: "⏰ المواعيد",
+                rule2Line1: "• الحضور قبل 30 دقيقة",
+                rule2Line2: "• التسجيل: 16:30-19:00",
+                rule2Line3: "• المباريات الساعة 18:30",
+                rule3Title: "🏆 النظام",
+                rule3Line1: "• 3 جولات تأهيلية",
+                rule3Line2: "• أفضل 8 نصف النهائي",
+                rule3Line3: "• النهائي BO3",
+                rule4Title: "⚖️ العقوبات",
+                rule4Line1: "• الأولى: إنذار",
+                rule4Line2: "• الثانية: استبعاد",
+                rule4Line3: "• الثالثة: حظر",
+                rankingTitle: "ترتيب العشائر",
+                rankHeader: "#",
+                clanHeader: "العشيرة والأعضاء",
+                killsHeader: "قتل",
+                assistsHeader: "مساعدات",
+                totalKillsHeader: "إجمالي القتل",
+                totalAssistsHeader: "إجمالي المساعدات",
+                pointsHeader: "النقاط",
+                discordBtn: "Discord",
+                tiktokBtn: "TikTok",
+                backHome: "العودة للرئيسية",
+                you: "أنت",
+                clan: "العشيرة",
+                captain: "القائد",
+                member2: "العضو 2",
+                member3: "العضو 3",
+                pseudo: "الاسم",
+                id: "المعرف",
+                discord: "Discord"
+            }
+        };
+
+        let currentLang = 'fr';
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+            
+            localStorage.setItem('selectedLanguage', lang);
+            
+            if (lang === 'ar') {
+                document.body.classList.add('rtl');
+            } else {
+                document.body.classList.remove('rtl');
+            }
+
+            document.querySelectorAll('.lang-option').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(lang.toUpperCase())) {
+                    btn.classList.add('active');
+                }
+            });
+
+            document.getElementById('dashboardSubtitle').textContent = t.dashboardSubtitle;
+            document.getElementById('teamTitle').textContent = t.teamTitle;
+            document.getElementById('serverTitle').textContent = t.serverTitle;
+            document.getElementById('serverWelcome').textContent = t.serverWelcome;
+            document.getElementById('serverDesc').textContent = t.serverDesc;
+            document.getElementById('feature1').textContent = t.feature1;
+            document.getElementById('feature2').textContent = t.feature2;
+            document.getElementById('feature3').textContent = t.feature3;
+            document.getElementById('feature4').textContent = t.feature4;
+            document.getElementById('serverBtn').textContent = t.serverBtn;
+            document.getElementById('rulesTitle').textContent = t.rulesTitle;
+            document.getElementById('rule1Title').textContent = t.rule1Title;
+            document.getElementById('rule1Line1').textContent = t.rule1Line1;
+            document.getElementById('rule1Line2').textContent = t.rule1Line2;
+            document.getElementById('rule1Line3').textContent = t.rule1Line3;
+            document.getElementById('rule2Title').textContent = t.rule2Title;
+            document.getElementById('rule2Line1').textContent = t.rule2Line1;
+            document.getElementById('rule2Line2').textContent = t.rule2Line2;
+            document.getElementById('rule2Line3').textContent = t.rule2Line3;
+            document.getElementById('rule3Title').textContent = t.rule3Title;
+            document.getElementById('rule3Line1').textContent = t.rule3Line1;
+            document.getElementById('rule3Line2').textContent = t.rule3Line2;
+            document.getElementById('rule3Line3').textContent = t.rule3Line3;
+            document.getElementById('rule4Title').textContent = t.rule4Title;
+            document.getElementById('rule4Line1').textContent = t.rule4Line1;
+            document.getElementById('rule4Line2').textContent = t.rule4Line2;
+            document.getElementById('rule4Line3').textContent = t.rule4Line3;
+            document.getElementById('rankingTitle').textContent = t.rankingTitle;
+            document.getElementById('rankHeader').textContent = t.rankHeader;
+            document.getElementById('clanHeader').textContent = t.clanHeader;
+            document.getElementById('killsHeader').textContent = t.killsHeader;
+            document.getElementById('assistsHeader').textContent = t.assistsHeader;
+            document.getElementById('totalKillsHeader').textContent = t.totalKillsHeader;
+            document.getElementById('totalAssistsHeader').textContent = t.totalAssistsHeader;
+            document.getElementById('pointsHeader').textContent = t.pointsHeader;
+            document.getElementById('discordBtn').textContent = t.discordBtn;
+            document.getElementById('tiktokBtn').textContent = t.tiktokBtn;
+            document.getElementById('backHome').textContent = t.backHome;
+
+            loadTeamData();
+        }
+
+        function loadTeamData() {
+            const equipes = JSON.parse(localStorage.getItem('equipes')) || [];
+            const currentUser = localStorage.getItem('currentUser');
+            const comptes = JSON.parse(localStorage.getItem('comptes')) || [];
+            
+            const compte = comptes.find(c => c.username === currentUser);
+            const equipeActuelle = equipes.find(e => e.clan === (compte ? compte.clan : null));
+            
+            const teamDisplay = document.getElementById('teamDisplay');
+            const t = translations[currentLang];
+
+            if (equipeActuelle) {
+                teamDisplay.innerHTML = `
+                    <div class="clan-header">
+                        <div class="clan-name">${equipeActuelle.clan}</div>
+                        <div class="clan-badge"><i class="fas fa-flag"></i> ${t.clan}</div>
+                    </div>
+                    <div class="player-card">
+                        <h3><i class="fas fa-crown" style="color: gold;"></i> ${t.captain}</h3>
+                        <div class="player-info"><span>${t.pseudo}:</span> <span>${equipeActuelle.capitaine.pseudo}</span></div>
+                        <div class="player-info"><span>${t.id}:</span> <span>${equipeActuelle.capitaine.id}</span></div>
+                        <div class="player-info"><span>${t.discord}:</span> <span>${equipeActuelle.capitaine.discord}</span></div>
+                    </div>
+                    <div class="player-card">
+                        <h3><i class="fas fa-user"></i> ${t.member2}</h3>
+                        <div class="player-info"><span>${t.pseudo}:</span> <span>${equipeActuelle.membre2.pseudo}</span></div>
+                        <div class="player-info"><span>${t.id}:</span> <span>${equipeActuelle.membre2.id}</span></div>
+                        ${equipeActuelle.membre2.discord !== "Non fourni" ? 
+                            `<div class="player-info"><span>${t.discord}:</span> <span>${equipeActuelle.membre2.discord}</span></div>` : ''}
+                    </div>
+                    <div class="player-card">
+                        <h3><i class="fas fa-user"></i> ${t.member3}</h3>
+                        <div class="player-info"><span>${t.pseudo}:</span> <span>${equipeActuelle.membre3.pseudo}</span></div>
+                        <div class="player-info"><span>${t.id}:</span> <span>${equipeActuelle.membre3.id}</span></div>
+                        ${equipeActuelle.membre3.discord !== "Non fourni" ? 
+                            `<div class="player-info"><span>${t.discord}:</span> <span>${equipeActuelle.membre3.discord}</span></div>` : ''}
+                    </div>
+                `;
+            } else {
+                teamDisplay.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No team found</p>`;
+            }
+
+            updateRanking();
+        }
+
+        function updateRanking() {
+            const equipes = JSON.parse(localStorage.getItem('equipes')) || [];
+            const currentUser = localStorage.getItem('currentUser');
+            const comptes = JSON.parse(localStorage.getItem('comptes')) || [];
+            
+            const compte = comptes.find(c => c.username === currentUser);
+            const equipeActuelle = equipes.find(e => e.clan === (compte ? compte.clan : null));
+            
+            const rankingBody = document.getElementById('rankingBody');
+            const t = translations[currentLang];
+            
+            rankingBody.innerHTML = '';
+
+            const classement = [...equipes].sort((a, b) => (b.points || 0) - (a.points || 0));
+
+            classement.forEach((equipe, index) => {
+                const row = document.createElement('tr');
+                let rankClass = '';
+                if (index === 0) rankClass = 'rank-1';
+                else if (index === 1) rankClass = 'rank-2';
+                else if (index === 2) rankClass = 'rank-3';
+                
+                const killsCapitaine = equipe.killsCapitaine || '0';
+                const killsMembre2 = equipe.killsMembre2 || '0';
+                const killsMembre3 = equipe.killsMembre3 || '0';
+                
+                const assistsCapitaine = equipe.assistsCapitaine || '0';
+                const assistsMembre2 = equipe.assistsMembre2 || '0';
+                const assistsMembre3 = equipe.assistsMembre3 || '0';
+                
+                const totalKills = equipe.totalKills || '0';
+                const totalAssists = equipe.totalAssists || 
+                    (parseInt(assistsCapitaine) + parseInt(assistsMembre2) + parseInt(assistsMembre3)).toString();
+                
+                const points = equipe.points || '0';
+                
+                const isCurrentTeam = equipeActuelle && equipe.clan === equipeActuelle.clan;
+                
+                row.innerHTML = `
+                    <td class="${rankClass}">${index + 1}</td>
+                    <td>
+                        <div class="clan-info">
+                            <span class="clan-name-td">${equipe.clan} ${isCurrentTeam ? `<span class="team-badge">${t.you}</span>` : ''}</span>
+                            <div class="members-list">
+                                <div class="member-row">
+                                    <span class="member-name">👑 ${equipe.capitaine.pseudo}</span>
+                                </div>
+                                <div class="member-row">
+                                    <span class="member-name">👤 ${equipe.membre2.pseudo}</span>
+                                </div>
+                                <div class="member-row">
+                                    <span class="member-name">👤 ${equipe.membre3.pseudo}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="members-list">
+                            <div class="member-row">
+                                <span class="member-stats"><span class="member-kills">${killsCapitaine}</span></span>
+                            </div>
+                            <div class="member-row">
+                                <span class="member-stats"><span class="member-kills">${killsMembre2}</span></span>
+                            </div>
+                            <div class="member-row">
+                                <span class="member-stats"><span class="member-kills">${killsMembre3}</span></span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="members-list">
+                            <div class="member-row">
+                                <span class="member-stats"><span class="member-assists">${assistsCapitaine}</span></span>
+                            </div>
+                            <div class="member-row">
+                                <span class="member-stats"><span class="member-assists">${assistsMembre2}</span></span>
+                            </div>
+                            <div class="member-row">
+                                <span class="member-stats"><span class="member-assists">${assistsMembre3}</span></span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="totals-row">
+                            <span class="totals-label">${t.totalKillsHeader}:</span>
+                            <span class="totals-value">${totalKills}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="totals-row" style="border-left-color: #ffaa00;">
+                            <span class="totals-label">${t.totalAssistsHeader}:</span>
+                            <span class="totals-value" style="color: #ffaa00;">${totalAssists}</span>
+                        </div>
+                    </td>
+                    <td class="points-cell">${points}</td>
+                `;
+                rankingBody.appendChild(row);
+            });
+
+            if (classement.length < 8) {
+                for (let i = classement.length; i < 8; i++) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${i + 1}</td>
+                        <td>---</td>
+                        <td>---</td>
+                        <td>---</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                    `;
+                    rankingBody.appendChild(row);
+                }
+            }
+        }
+
+        const savedLang = localStorage.getItem('selectedLanguage') || 'fr';
+        changeLanguage(savedLang);
+        showRemainingSpots();
+        setInterval(updateRanking, 2000);
+        setInterval(showRemainingSpots, 5000);
+    </script>
+</body>
+</html>
